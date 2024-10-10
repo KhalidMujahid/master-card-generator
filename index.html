@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MasterCard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MasterCard Generator</h1>
+        <div class="form-group">
+            <label for="cardNumber">Card Number:</label>
+            <input type="text" class="form-control" id="cardNumber" placeholder="Card Number" readonly>
+        </div>
+        <div class="form-group">
+            <label for="expirationDate">Expiration Date:</label>
+            <input type="text" class="form-control" id="expirationDate" placeholder="MM/YY" readonly>
+        </div>
+        <div class="form-group">
+            <label for="cvc">CVC:</label>
+            <input type="text" class="form-control" id="cvc" placeholder="CVC" readonly>
+        </div>
+        <button id="generateButton" class="btn btn-primary btn-block">Generate Card Details</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const cardNumberDom = document.querySelector("#cardNumber");
+        const expirationDateDom = document.querySelector("#expirationDate");
+        const cvcDom = document.querySelector("#cvc");
+        const generateButton = document.querySelector("#generateButton");
+
+        generateButton.addEventListener("click", () => {
+            const testCardDetails = generateMasterCardDetails();
+            cardNumberDom.value = testCardDetails.cardNumber;
+            expirationDateDom.value = testCardDetails.expirationDate;
+            cvcDom.value = testCardDetails.cvc;
+        });
+
+        function generateMasterCardDetails() {
+            const cardNumber = generateMasterCardNumber();
+            const expirationDate = generateExpirationDate();
+            const cvc = generateCVC();
+
+            return {
+                cardNumber,
+                expirationDate,
+                cvc
+            };
+        }
+
+        function generateMasterCardNumber() {
+            const prefix = Math.floor(Math.random() * 5) + 51;
+            let number = prefix.toString();
+
+            for (let i = 0; i < 14; i++) {
+                number += Math.floor(Math.random() * 10).toString();
+            }
+
+            const checkDigit = getLuhnCheckDigit(number);
+            return number + checkDigit;
+        }
+
+        function getLuhnCheckDigit(number) {
+            let sum = 0;
+            let shouldDouble = false;
+
+            for (let i = number.length - 1; i >= 0; i--) {
+                let digit = parseInt(number.charAt(i), 10);
+
+                if (shouldDouble) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit -= 9;
+                    }
+                }
+
+                sum += digit;
+                shouldDouble = !shouldDouble;
+            }
+
+            return (10 - (sum % 10)) % 10;
+        }
+
+        function generateExpirationDate() {
+            const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+            const year = new Date().getFullYear() + Math.floor(Math.random() * 5);
+            return `${month}/${year.toString().slice(-2)}`;
+        }
+
+        function generateCVC() {
+            let cvc = '';
+            for (let i = 0; i < 3; i++) {
+                cvc += Math.floor(Math.random() * 10).toString();
+            }
+            return cvc;
+        }
+    </script>
+</body>
+</html>
